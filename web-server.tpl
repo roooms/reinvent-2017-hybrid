@@ -1,13 +1,11 @@
 #!/bin/bash
 
-instance_id="$(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
-new_hostname="web-server-$${instance_id}"
+new_hostname="${cloud_vendor}-web-server-$(hostname)"
 
 # set the hostname
 hostnamectl set-hostname "$${new_hostname}"
 
 # install httpd and create a landing page
-yum update -y
 yum install -y httpd
 service httpd start
 chkconfig httpd on

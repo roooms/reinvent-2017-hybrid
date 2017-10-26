@@ -1,3 +1,10 @@
 configuration_name = "reinvent-demo"
-region             = "eu-west-1"
+
+# AWS variables
+aws_region         = "eu-west-1"
 ssh_key_name       = "my-ssh-key"
+
+# Google variables
+google_project     = "my-project"
+google_region      = "europe-west1"
+google_zone        = "europe-west1-c"

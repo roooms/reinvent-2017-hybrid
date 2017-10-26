@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "${var.region}"
+  region = "${var.aws_region}"
 }
 
 # Use module registry: https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/1.0.4
@@ -25,7 +25,7 @@ module "asg" {
   instance_type   = "t2.micro"
   key_name        = "${var.ssh_key_name}"
   security_groups = ["${aws_security_group.sg.id}"]
-  user_data       = "${data.template_file.web_server.rendered}"
+  user_data       = "${data.template_file.web_server_aws.rendered}"
 
   ebs_block_device = [
     {
@@ -53,7 +53,7 @@ module "asg" {
   wait_for_capacity_timeout = 0
 }
 
-# My resources:
+# Local resources:
 resource "aws_security_group" "sg" {
   name        = "${var.configuration_name}-sg"
   description = "security group for ${var.configuration_name}"
@@ -88,6 +88,7 @@ resource "aws_security_group" "sg" {
   }
 }
 
+# Data sources:
 data "aws_ami" "amazon_linux" {
   most_recent = true
 
@@ -102,6 +103,10 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-data "template_file" "web_server" {
+data "template_file" "web_server_aws" {
   template = "${file("${path.module}/web-server.tpl")}"
+
+  vars = {
+    cloud_vendor = "aws"
+  }
 }
