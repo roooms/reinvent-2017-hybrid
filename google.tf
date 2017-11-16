@@ -9,7 +9,7 @@ module "gcp_mig1" {
   region            = "${var.google_region}"
   zone              = "${var.google_zone}"
   network           = "default"
-  name              = "${var.configuration_name}-group1"
+  name              = "group1"
   machine_type      = "f1-micro"
   compute_image     = "centos-cloud/centos-7"
   size              = 2
@@ -25,7 +25,7 @@ module "gcp_mig2" {
   region            = "${var.google_region}"
   zone              = "${var.google_zone}"
   network           = "default"
-  name              = "${var.configuration_name}-group2"
+  name              = "group2"
   machine_type      = "f1-micro"
   compute_image     = "centos-cloud/centos-7"
   size              = 2
@@ -62,10 +62,6 @@ module "gcp_lb_http" {
 # Data sources
 data "template_file" "web_server_google" {
   template = "${file("${path.module}/web-server.tpl")}"
-
-  vars = {
-    cloud_vendor = "google"
-  }
 }
 
 # Outputs

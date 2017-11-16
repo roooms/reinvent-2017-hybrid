@@ -133,10 +133,6 @@ data "aws_ami" "amazon_linux" {
 
 data "template_file" "web_server_aws" {
   template = "${file("${path.module}/web-server.tpl")}"
-
-  vars = {
-    cloud_vendor = "aws"
-  }
 }
 
 # Outputs
