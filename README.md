@@ -4,9 +4,9 @@ A simple Terraform configuration to demo Terraform Open Source and Terraform Ent
 
 This configuration provisions infrastructure on AWS and Google Cloud to demonstrate the cross-provider functionality Terraform provides.
 
-For AWS: aws.tf uses modules from the [Terraform Module Registry][terraform_registry] to provision a VPC, the necessary networking components and an auto scaling group across multiple AZs. The associated launch configuration launches three instances of the latest Amazon Linux AMI then installs httpd and a custom landing page via a user data script.
+For AWS: aws.tf uses modules from the [Terraform Module Registry][terraform_registry_aws] to provision a VPC, the necessary networking components and an auto scaling group across multiple AZs. The associated launch configuration launches three instances of the latest Amazon Linux AMI then installs httpd and a custom landing page via a user data script.
 
-For Google: google.tf uses the managed-instance-group module from the Terraform Module Registry to provision a Managed Instance Group in the default VPC and network. The group configuration launches three VMs running CentOS 7 then installs httpd and a custom landing page via a startup script.
+For Google: google.tf uses the managed-instance-group module from the [Terraform Module Registry][terraform_registry_gcp] to provision a Managed Instance Group in the default VPC and network. The group configuration launches three VMs running CentOS 7 then installs httpd and a custom landing page via a startup script.
 
 ## Estimated Time to Complete
 
@@ -14,7 +14,7 @@ For Google: google.tf uses the managed-instance-group module from the Terraform 
 
 ## Prerequisites
 
-### AWS 
+### AWS
 
 * An AWS [key pair][key_pair] is required in the region you are provisioning this infrastructure.
 * An AWS Access Key and AWS Secret Access Key should be [configured on the host][cli_config] running this Terraform configuration.
@@ -29,7 +29,7 @@ For Google: google.tf uses the managed-instance-group module from the Terraform 
 ## Steps
 
 1. Copy terraform.tfvars.example to terraform.tfvars:
-    
+
     `cp terraform.tfvars.example terraform.tfvars`
 
 1. For AWS, update the region, and update the ssh_key_name value to a key pair name that pre-exists in the region.
@@ -52,12 +52,13 @@ This configuration uses an AWS auto scaling group and Google Managed Instance Gr
 
 To destroy the resources provisioned in this example run:
 
-```
+```sh
 terraform plan -out=d.tfplan -destroy
 terraform apply d.tfplan
 ```
 
-[terraform_registry]: https://registry.terraform.io/
+[terraform_registry_aws]: https://registry.terraform.io/browse?provider=aws
+[terraform_registry_gcp]: https://registry.terraform.io/browse?provider=google
 [key_pair]: http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
 [cli_config]: http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
 [getting_started_with_gcp]: https://cloud.google.com/docs/authentication/getting-started
