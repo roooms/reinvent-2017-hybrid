@@ -1,8 +1,8 @@
-# re:Invent-2017 Provision Demo
+# re:Invent-2017 Terraform Demo
 
-A simple Terraform configuration to demo Terraform Open Source and Terraform Enterprise.
+A simple Terraform configuration to demo Terraform Open Source.
 
-This configuration provisions infrastructure on AWS and Google Cloud to demonstrate the cross-provider functionality Terraform provides.
+This configuration provisions infrastructure on AWS and Google Cloud to demonstrate the cross-provider provisioning functionality Terraform enables.
 
 For AWS: aws.tf uses modules from the [Terraform Module Registry][terraform_registry_aws] to provision a VPC, the necessary networking components and an auto scaling group across multiple AZs. The associated launch configuration launches three instances of the latest Amazon Linux AMI then installs httpd and a custom landing page via a user data script.
 
