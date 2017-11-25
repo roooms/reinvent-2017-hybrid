@@ -2,9 +2,10 @@ provider "aws" {
   region = "${var.aws_region}"
 }
 
-# Use module registry: https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/1.0.4
+# Use module registry: https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/1.5.1
 module "aws_vpc" {
   source               = "terraform-aws-modules/vpc/aws"
+  version              = "1.5.1"
   name                 = "${var.configuration_name}-vpc"
   cidr                 = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -15,25 +16,18 @@ module "aws_vpc" {
 
 # Use module registry: https://registry.terraform.io/modules/terraform-aws-modules/autoscaling/aws/1.0.3
 module "aws_asg" {
-  source = "terraform-aws-modules/autoscaling/aws"
+  source  = "terraform-aws-modules/autoscaling/aws"
+  version = "1.0.3"
 
   # Launch configuration
-  lc_name         = "${var.configuration_name}"
-  image_id        = "${data.aws_ami.amazon_linux.id}"
-  instance_type   = "t2.nano"
-  key_name        = "${var.ssh_key_name}"
-  security_groups = ["${aws_security_group.sg.id}"]
-  user_data       = "${data.template_file.web_server_aws.rendered}"
-  load_balancers  = ["${module.aws_elb.this_elb_id}"]
-
-  ebs_block_device = [
-    {
-      device_name           = "/dev/xvdz"
-      volume_type           = "gp2"
-      volume_size           = "8"
-      delete_on_termination = true
-    },
-  ]
+  lc_name           = "${var.configuration_name}"
+  image_id          = "${data.aws_ami.amazon_linux.id}"
+  instance_type     = "t2.nano"
+  key_name          = "${var.ssh_key_name}"
+  security_groups   = ["${aws_security_group.sg.id}"]
+  user_data         = "${data.template_file.web_server_aws.rendered}"
+  load_balancers    = ["${module.aws_elb.this_elb_id}"]
+  target_group_arns = [""]
 
   root_block_device = [
     {
@@ -50,12 +44,12 @@ module "aws_asg" {
   max_size                  = 3
   desired_capacity          = 3
   wait_for_capacity_timeout = 0
-  load_balancers            = [""]
 }
 
 # Use module registry: https://registry.terraform.io/modules/terraform-aws-modules/elb/aws/1.0.0
 module "aws_elb" {
   source          = "terraform-aws-modules/elb/aws"
+  version         = "1.0.0"
   name            = "elb"
   subnets         = ["${module.aws_vpc.public_subnets}"]
   security_groups = ["${aws_security_group.sg.id}"]
