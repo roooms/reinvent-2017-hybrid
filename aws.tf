@@ -124,8 +124,3 @@ data "template_file" "web_server_aws" {
 data "aws_availability_zones" "available" {
   state = "available"
 }
-
-# Outputs
-output "aws-lb" {
-  value = "${module.aws_elb.this_elb_dns_name}"
-}

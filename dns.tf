@@ -2,6 +2,7 @@ data "aws_route53_zone" "hashidemos" {
   name = "hashidemos.io."
 }
 
+# Local resources
 resource "aws_route53_record" "hashidemos_gcp" {
   zone_id = "${data.aws_route53_zone.hashidemos.zone_id}"
   name    = "hybrid-cloud-gcp.hashidemos.io."
@@ -44,16 +45,4 @@ resource "aws_route53_record" "hybrid-cloud-gcp" {
 
   set_identifier = "gcp"
   records        = ["hybrid-cloud-gcp.hashidemos.io"]
-}
-
-output "aws-dns" {
-  value = "${aws_route53_record.hashidemos_aws.fqdn}"
-}
-
-output "gcp-dns" {
-  value = "${aws_route53_record.hashidemos_gcp.fqdn}"
-}
-
-output "0-dns" {
-  value = "hybrid-cloud.hashidemos.io"
 }

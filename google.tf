@@ -92,8 +92,3 @@ resource "google_compute_instance_template" "default" {
 data "template_file" "web_server_google" {
   template = "${file("${path.module}/web-server.tpl")}"
 }
-
-# Outputs
-output "gcp-lb" {
-  value = "${google_compute_global_forwarding_rule.default.ip_address}"
-}
