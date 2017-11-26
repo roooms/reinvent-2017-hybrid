@@ -6,7 +6,7 @@ For AWS: aws.tf uses modules from the [Terraform Module Registry][terraform_regi
 
 For Google: google.tf uses locally defined resources to provision a Managed Instance Group in the default VPC and network, spanning multiple zones. The group configuration launches three VMs running CentOS 7 then installs httpd and a custom landing page via a startup script.
 
-> The regions chosen for this demo are hardcoded to AWS us-west-2 and GCP us-west1
+> The regions chosen for this demo are hardcoded to AWS eu-west-1 and GCP us-west1
 
 ## Estimated Time to Complete
 
@@ -37,11 +37,6 @@ For Google: google.tf uses locally defined resources to provision a Managed Inst
 
 ## Steps
 
-1. Copy terraform.tfvars.example to terraform.tfvars:
-
-    `cp terraform.tfvars.example terraform.tfvars`
-
-1. Update the configuration_name variable is desired.
 1. Initialise Terraform to download the required dependencies:
 
     `terraform init`
@@ -55,8 +50,6 @@ For Google: google.tf uses locally defined resources to provision a Managed Inst
     `terraform apply 1.tfplan`
 
 ### Notes
-
-This configuration uses an AWS Auto Scaling group and Google Managed Instance Group, both of which launch VMs with ephemeral public DNS/IP addresses. You must check in the AWS and Google consoles or use their respective CLI tools to retrieve the public addresses of each VM.
 
 To destroy the resources provisioned in this example run:
 

@@ -25,8 +25,9 @@ resource "aws_route53_record" "hybrid-cloud-aws" {
   type    = "CNAME"
   ttl     = "5"
 
-  weighted_routing_policy {
-    weight = 50
+  geolocation_routing_policy {
+    continent = "EU"
+    country = "*"
   }
 
   set_identifier = "aws"
@@ -39,8 +40,8 @@ resource "aws_route53_record" "hybrid-cloud-gcp" {
   type    = "CNAME"
   ttl     = "5"
 
-  weighted_routing_policy {
-    weight = 50
+  geolocation_routing_policy {
+    country = "*"
   }
 
   set_identifier = "gcp"
