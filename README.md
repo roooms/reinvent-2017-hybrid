@@ -1,12 +1,12 @@
-# re:Invent-2017 Terraform Demo
+# re:Invent 2017 Terraform Hybrid Cloud Demo
 
-A simple Terraform configuration to demo Terraform Open Source.
-
-This configuration provisions infrastructure on AWS and Google Cloud to demonstrate the cross-provider provisioning functionality Terraform enables.
+This configuration provisions infrastructure on Amazon Web Services and Google Cloud Platform to demonstrate the cross-provider provisioning functionality available in Terraform.
 
 For AWS: aws.tf uses modules from the [Terraform Module Registry][terraform_registry_aws] to provision a VPC, the necessary networking components and an auto scaling group across multiple AZs. The associated launch configuration launches three instances of the latest Amazon Linux AMI then installs httpd and a custom landing page via a user data script.
 
-For Google: google.tf uses the managed-instance-group module from the [Terraform Module Registry][terraform_registry_gcp] to provision a Managed Instance Group in the default VPC and network. The group configuration launches three VMs running CentOS 7 then installs httpd and a custom landing page via a startup script.
+For Google: google.tf uses locally defined resources to provision a Managed Instance Group in the default VPC and network, spanning multiple zones. The group configuration launches three VMs running CentOS 7 then installs httpd and a custom landing page via a startup script.
+
+> The regions chosen for this demo are hardcoded to AWS us-west-2 and GCP us-west1
 
 ## Estimated Time to Complete
 
@@ -16,15 +16,24 @@ For Google: google.tf uses the managed-instance-group module from the [Terraform
 
 ### AWS
 
-* An AWS [key pair][key_pair] is required in the region you are provisioning this infrastructure.
-* An AWS Access Key and AWS Secret Access Key should be [configured on the host][cli_config] running this Terraform configuration.
+* An AWS Access Key and AWS Secret Access Key should be configured on the host running this Terraform configuration. Environment variables are one way to achieve this, eg:
 
-### Google
+    ```sh
+    export AWS_ACCESS_KEY_ID=XXXXXXXXXXXXXXXXXXXX
+    export AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    ```
 
-* A Google credentials file should be present on the host running this Terraform configuration.
-* A `GOOGLE_APPLICATION_CREDENTIALS` environment variable should point to the Google credentials file.
+> See the  ['Configuring the AWS CLI'][aws_cli_config] documentation for guidance
 
-> See the ['Getting Started with Authentication'][getting_started_with_gcp] documentation for GCP for guidance
+### GCP
+
+* Google credentials should be present on the host running this Terraform configuration. Environment variables are one way to acieve this, eg:
+
+    ```sh
+    export GOOGLE_APPLICATION_CREDENTIALS=/path/to/google_credentials.json
+    ```
+
+> See the ['Getting Started with Authentication'][getting_started_with_gcp] GCP documentation for guidance
 
 ## Steps
 
@@ -32,8 +41,7 @@ For Google: google.tf uses the managed-instance-group module from the [Terraform
 
     `cp terraform.tfvars.example terraform.tfvars`
 
-1. For AWS, update the region, and update the ssh_key_name value to a key pair name that pre-exists in the region.
-1. For Google, update the project, region and zone you will deploy this infrastructure in.
+1. Update the configuration_name variable is desired.
 1. Initialise Terraform to download the required dependencies:
 
     `terraform init`
@@ -48,7 +56,7 @@ For Google: google.tf uses the managed-instance-group module from the [Terraform
 
 ### Notes
 
-This configuration uses an AWS auto scaling group and Google Managed Instance Group, both of which launch VMs with ephemeral public DNS/IP addresses. You must check in the AWS and Google consoles or use their respective CLI tools to retrieve the public addresses of each VM.
+This configuration uses an AWS Auto Scaling group and Google Managed Instance Group, both of which launch VMs with ephemeral public DNS/IP addresses. You must check in the AWS and Google consoles or use their respective CLI tools to retrieve the public addresses of each VM.
 
 To destroy the resources provisioned in this example run:
 
@@ -58,7 +66,5 @@ terraform apply d.tfplan
 ```
 
 [terraform_registry_aws]: https://registry.terraform.io/browse?provider=aws
-[terraform_registry_gcp]: https://registry.terraform.io/browse?provider=google
-[key_pair]: http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
-[cli_config]: http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
+[aws_cli_config]: http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
 [getting_started_with_gcp]: https://cloud.google.com/docs/authentication/getting-started

@@ -7,7 +7,7 @@ resource "aws_route53_record" "hashidemos_gcp" {
   name    = "hybrid-cloud-gcp.hashidemos.io."
   type    = "A"
   ttl     = "300"
-  records = ["${module.gcp_lb_http.external_ip}"]
+  records = ["${google_compute_global_forwarding_rule.default.ip_address}"]
 }
 
 resource "aws_route53_record" "hashidemos_aws" {

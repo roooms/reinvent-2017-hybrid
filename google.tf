@@ -1,43 +1,91 @@
 provider "google" {
-  project = "${var.google_project}"
-  region  = "${var.google_region}"
+  project = "hashicorp-reinvent"
+  region  = "us-west1"
 }
 
-# Use module registry: https://registry.terraform.io/modules/GoogleCloudPlatform/managed-instance-group/google/1.0.2
-module "gcp_mig" {
-  source            = "GoogleCloudPlatform/managed-instance-group/google"
-  version           = "1.0.2"
-  region            = "${var.google_region}"
-  zone              = "${var.google_zone}"
-  network           = "default"
-  name              = "web-server"
-  machine_type      = "f1-micro"
-  compute_image     = "centos-cloud/centos-7"
-  size              = 3
-  service_port      = 80
-  service_port_name = "http"
-  startup_script    = "${data.template_file.web_server_google.rendered}"
-  target_tags       = ["allow-service", "http-server"]
+# Local resources
+resource "google_compute_health_check" "default" {
+  name                = "reinvent-health-check"
+  check_interval_sec  = 5
+  timeout_sec         = 5
+  healthy_threshold   = 2
+  unhealthy_threshold = 2
+
+  tcp_health_check {
+    port = "80"
+  }
 }
 
-# Use module registry: https://registry.terraform.io/modules/GoogleCloudPlatform/lb-http/google/1.0.4
-module "gcp_lb_http" {
-  source      = "GoogleCloudPlatform/lb-http/google"
-  version     = "1.0.4"
-  name        = "group-http-lb"
-  target_tags = ["${module.gcp_mig.target_tags}"]
-  network     = "default"
+resource "google_compute_global_forwarding_rule" "default" {
+  name       = "${var.configuration_name}-global-forwarding-rule"
+  target     = "${google_compute_target_http_proxy.default.self_link}"
+  port_range = "80"
+}
 
-  backends = {
-    "0" = [{
-      group = "${module.gcp_mig.instance_group}"
-    }]
+resource "google_compute_target_http_proxy" "default" {
+  name    = "${var.configuration_name}-http-proxy"
+  url_map = "${google_compute_url_map.default.self_link}"
+}
+
+resource "google_compute_url_map" "default" {
+  name            = "${var.configuration_name}-url-map"
+  default_service = "${google_compute_backend_service.default.self_link}"
+}
+
+resource "google_compute_backend_service" "default" {
+  name          = "${var.configuration_name}-region-backend-service"
+  health_checks = ["${google_compute_health_check.default.self_link}"]
+
+  backend {
+    group = "${google_compute_region_instance_group_manager.default.instance_group}"
+  }
+}
+
+resource "google_compute_region_instance_group_manager" "default" {
+  name               = "${var.configuration_name}"
+  base_instance_name = "web-server"
+  instance_template  = "${google_compute_instance_template.default.self_link}"
+  region             = "us-west1"
+  target_size        = 3
+  depends_on         = ["google_compute_instance_template.default"]
+
+  named_port {
+    name = "http"
+    port = 80
+  }
+}
+
+resource "google_compute_instance_template" "default" {
+  machine_type            = "f1-micro"
+  tags                    = ["http-server"]
+  can_ip_forward          = "true"
+  metadata_startup_script = "${data.template_file.web_server_google.rendered}"
+
+  network_interface {
+    network       = "default"
+    access_config = [{}]
   }
 
-  backend_params = [
-    # health check path, port name, port number, timeout seconds
-    "/,http,80,5",
-  ]
+  disk {
+    auto_delete  = true
+    boot         = true
+    source_image = "centos-cloud/centos-7"
+    type         = "PERSISTENT"
+    disk_type    = "pd-ssd"
+  }
+
+  service_account {
+    scopes = [
+      "https://www.googleapis.com/auth/compute",
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring.write",
+      "https://www.googleapis.com/auth/devstorage.full_control",
+    ]
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # Data sources
@@ -47,5 +95,5 @@ data "template_file" "web_server_google" {
 
 # Outputs
 output "gcp-lb" {
-  value = "${module.gcp_lb_http.external_ip}"
+  value = "${google_compute_global_forwarding_rule.default.ip_address}"
 }

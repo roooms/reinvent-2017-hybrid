@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "${var.aws_region}"
+  region = "us-west-2"
 }
 
 # Use module registry: https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/1.5.1
@@ -10,7 +10,7 @@ module "aws_vpc" {
   cidr                 = "10.0.0.0/16"
   enable_dns_hostnames = true
   enable_dns_support   = true
-  azs                  = ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
+  azs                  = ["us-west-2a", "us-west-2b", "us-west-2c"]
   public_subnets       = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 }
 
@@ -23,7 +23,6 @@ module "aws_asg" {
   lc_name           = "${var.configuration_name}"
   image_id          = "${data.aws_ami.amazon_linux.id}"
   instance_type     = "t2.nano"
-  key_name          = "${var.ssh_key_name}"
   security_groups   = ["${aws_security_group.sg.id}"]
   user_data         = "${data.template_file.web_server_aws.rendered}"
   load_balancers    = ["${module.aws_elb.this_elb_id}"]
@@ -82,13 +81,6 @@ resource "aws_security_group" "sg" {
   vpc_id      = "${module.aws_vpc.vpc_id}"
 
   ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -127,6 +119,10 @@ data "aws_ami" "amazon_linux" {
 
 data "template_file" "web_server_aws" {
   template = "${file("${path.module}/web-server.tpl")}"
+}
+
+data "aws_availability_zones" "available" {
+  state = "available"
 }
 
 # Outputs
